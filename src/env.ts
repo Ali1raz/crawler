@@ -4,6 +4,9 @@ import { z } from 'zod'
 export const env = createEnv({
   server: {
     SERVER_URL: z.string().url().optional(),
+    GITHUB_CLIENT_ID: z.string().min(1),
+    GITHUB_CLIENT_SECRET: z.string().min(1),
+    BETTER_AUTH_URL: z.string().url(),
   },
 
   /**
@@ -17,10 +20,13 @@ export const env = createEnv({
   },
 
   /**
-   * What object holds the environment variables at runtime. This is usually
-   * `process.env` or `import.meta.env`.
+   * What object holds the environment variables at runtime.
+   * Spread process.env for server-side vars, import.meta.env for VITE_ client vars.
    */
-  runtimeEnv: import.meta.env,
+  runtimeEnv: {
+    ...process.env,
+    ...import.meta.env,
+  },
 
   /**
    * By default, this library will feed the environment variables directly to
