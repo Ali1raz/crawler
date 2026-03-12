@@ -10,19 +10,14 @@ export const Route = createFileRoute('/dashboard/')({
       throw redirect({ to: '/login' });
     }
 
-    return { user: session.user };
-  },
-  loader: async ({ context }) => {
-    return context.user;
+    throw redirect({ to: '/dashboard/import' });
   },
 });
 
 function RouteComponent() {
-  const user = Route.useLoaderData();
-
   return (
     <div>
-      <div>Hello {user.name}!</div>
+      <div>Hello</div>
     </div>
   );
 }

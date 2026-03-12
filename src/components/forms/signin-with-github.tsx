@@ -1,4 +1,4 @@
-import { Github } from 'lucide-react';
+import { Github, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTransition } from 'react';
 import { authClient } from '#/lib/auth-client';
@@ -9,7 +9,10 @@ export function SignInWithGithub() {
 
   function onGithubSignIn() {
     startGithubTransition(async () => {
-      const { error } = await authClient.signIn.social({ provider: 'github' });
+      const { error } = await authClient.signIn.social({
+        provider: 'github',
+        callbackURL: '/dashboard',
+      });
       if (error) {
         toast.error(error.message ?? 'GitHub login failed');
         return;
@@ -26,7 +29,14 @@ export function SignInWithGithub() {
       disabled={isGithubPending}
     >
       <Github />
-      Login with GitHub
+      {isGithubPending ? (
+        <>
+          <Loader2 className="size-4 animate-spin" />
+          Loading ...
+        </>
+      ) : (
+        <span>Login with GitHub</span>
+      )}
     </Button>
   );
 }

@@ -1,27 +1,18 @@
-import { authClient } from '#/lib/auth-client';
 import { Button } from '#/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '#/components/ui/form';
 import { Input } from '#/components/ui/input';
+import { authClient } from '#/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useRouter } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { registerSchema, type RegisterSchemaType } from './schema';
 import { useTransition } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import { registerSchema, type RegisterSchemaType } from './schema';
 import { SignInWithGithub } from './signin-with-github';
 
 export function RegisterForm() {
   const [isEmailPending, startEmailTransition] = useTransition();
-
-  const router = useRouter();
 
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
@@ -30,98 +21,112 @@ export function RegisterForm() {
 
   function onSubmit(values: RegisterSchemaType) {
     startEmailTransition(async () => {
-      const { error } = await authClient.signUp.email({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      });
-      if (error) {
-        toast.error(error.message ?? 'Registration failed');
-        return;
-      } else {
-        toast.success('Account created!');
-        router.navigate({ to: '/dashboard' });
-      }
+      await authClient.signUp.email(
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          callbackURL: '/dashboard',
+        },
+        {
+          onError: ({ error }) => {
+            toast.error(error.message ?? 'Registration failed');
+          },
+          onSuccess: () => {
+            toast.success('Account created!');
+          },
+        },
+      );
     });
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4"
-      >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" autoComplete="name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
+    <div className="grid gap-4">
+      <form id="register-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup className="flex flex-col gap-4">
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Name</FieldLabel>
                 <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  placeholder="John"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            name="email"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                <Input
+                  {...field}
                   type="email"
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
                   placeholder="m@example.com"
                   autoComplete="email"
-                  {...field}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="my-4 space-y-2">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting || isEmailPending}
-          >
-            {(form.formState.isSubmitting || isEmailPending) && (
-              <Loader2 data-icon="inline-start" className="animate-spin" />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
             )}
-            {form.formState.isSubmitting
-              ? 'Creating account…'
-              : 'Create Account'}
-          </Button>
-
-          <SignInWithGithub />
-        </div>
-
-        <p className="text-center text-sm">
-          Already have an account?{' '}
-          <Link
-            to="/login"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Sign In
-          </Link>
-        </p>
+          />
+          <Controller
+            name="password"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <div className="flex items-center justify-between">
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                </div>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  type="password"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        </FieldGroup>
       </form>
-    </Form>
+      <Field className="mt-4 space-y-2">
+        <Button disabled={isEmailPending} type="submit" form="register-form">
+          {isEmailPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+            </>
+          ) : (
+            <>Register</>
+          )}
+        </Button>
+
+        <SignInWithGithub />
+      </Field>
+
+      <div className="text-center text-sm">
+        Already have an account?{' '}
+        <Link
+          to="/register"
+          className="text-primary hover:underline underline-offset-4"
+        >
+          Login
+        </Link>
+      </div>
+    </div>
   );
 }
