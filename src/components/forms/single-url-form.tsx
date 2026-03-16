@@ -1,69 +1,78 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from '@tanstack/react-form';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  singleUrlImportSchema,
-  type SingleUrlImportSchemaType,
-} from './schema';
+import { singleUrlImportSchema } from './schema';
 import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
 import { useTransition } from 'react';
+import { scrapeUrlFn } from '#/actions/scrape-single';
+import { toast } from 'sonner';
 
 export function SingleUrlForm() {
   const [isPending, startTransition] = useTransition();
-  const form = useForm<SingleUrlImportSchemaType>({
-    resolver: zodResolver(singleUrlImportSchema),
+
+  const form = useForm({
     defaultValues: {
       url: '',
     },
+    validators: {
+      onSubmit: singleUrlImportSchema,
+    },
+    onSubmit: ({ value }) => {
+      startTransition(async () => {
+        // console.log('Submitting URL:', value.url);
+        await scrapeUrlFn({ data: value });
+        toast.success('URL scraped successfully!');
+      });
+    },
   });
-
-  async function formSubmit(values: SingleUrlImportSchemaType) {
-    startTransition(async () => {
-      console.log('Submitting URL:', values.url);
-      //   await scrapeUrlFn({ url: values.url });
-    });
-  }
 
   return (
     <div className="grid gap-4 w-full">
-      <form id="single-url-form" onSubmit={form.handleSubmit(formSubmit)}>
-        <FieldGroup className="flex flex-col gap-4">
-          <Controller
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <FieldGroup>
+          <form.Field
             name="url"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name}>URL</FieldLabel>
-                <Input
-                  {...field}
-                  type="url"
-                  id={field.name}
-                  aria-invalid={fieldState.invalid}
-                  placeholder="https://example.com"
-                  autoComplete="url"
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !!field.state.meta.errors.length;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>URL</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="https://example.com"
+                    autoComplete="url"
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
           />
+
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Import Url'
+            )}
+          </Button>
         </FieldGroup>
       </form>
-      <Field className="mt-4 space-y-2">
-        <Button disabled={isPending} type="submit" form="single-url-form">
-          {isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Importing...
-            </>
-          ) : (
-            <>Import</>
-          )}
-        </Button>
-      </Field>
     </div>
   );
 }

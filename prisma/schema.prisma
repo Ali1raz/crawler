@@ -18,6 +18,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  savedItems SavedItem[]
+
   @@unique([email])
   @@map("user")
 }
@@ -68,4 +70,31 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model SavedItem {
+  id  String @id @default(uuid())
+  url String
+
+  title       String?
+  content     String?
+  summary     String?
+  tags        String[]
+  author      String?
+  publishedAt DateTime?
+  ogImage     String?
+  status      ItemStatus @default(PENDING)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ItemStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }

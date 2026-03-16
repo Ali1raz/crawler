@@ -28,3 +28,12 @@ export const bulkImportSchema = z.object({
 });
 
 export type BulkImportSchemaType = z.infer<typeof bulkImportSchema>;
+
+// ================
+
+export const extractSchema = z.object({
+  author: z.string().nullable(),
+  publishedAt: z.string().nullable(),
+});
+
+export type ExtractSchemaType = z.infer<typeof extractSchema>;
