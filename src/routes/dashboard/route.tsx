@@ -27,7 +27,7 @@ function RouteComponent() {
     <SidebarProvider>
       <AppSidebar user={user} />
       <SidebarInset>
-        <header className="flex h-16 border-b border-secondary shrink-0 items-center px-4 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="flex max-w-5xl h-16 border-b border-secondary shrink-0 items-center px-4 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
@@ -48,7 +48,7 @@ function RouteComponent() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4">
+        <main className="flex flex-1 max-w-5xl flex-col gap-4 p-4">
           <Outlet />
         </main>
       </SidebarInset>

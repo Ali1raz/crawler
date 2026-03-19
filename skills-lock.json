@@ -21,6 +21,11 @@
       "sourceType": "github",
       "computedHash": "7786d722fa682b3d6a99793e73a9d51b59becefa595676134a993020633e068f"
     },
+    "nuqs": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "computedHash": "573a1b8ab42c339b6efc8ab55e720faf75e4902071bdc2f65c006972accfd551"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
@@ -30,6 +35,11 @@
       "source": "tanstack-skills/tanstack-skills",
       "sourceType": "github",
       "computedHash": "6d00fa22960ef5c45d14906f8f05d91870de658effb8c76bacc69d60a1000098"
+    },
+    "tanstack-start-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "50c1b6d9b35b05927fa0c81962d560634385c9567b7b1d66396b171965b33105"
     }
   }
 }

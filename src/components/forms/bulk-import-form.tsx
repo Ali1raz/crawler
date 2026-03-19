@@ -6,8 +6,14 @@ import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
+import { mapUrls } from '#/actions/scrape-single';
+import type { SearchResultWeb } from '@mendable/firecrawl-js';
 
-export function BulkImportForm() {
+interface BulkImportFormProps {
+  setUrls: (urls: SearchResultWeb[]) => void;
+}
+
+export function BulkImportForm({ setUrls }: BulkImportFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
@@ -20,9 +26,9 @@ export function BulkImportForm() {
     },
     onSubmit: ({ value }) => {
       startTransition(async () => {
-        console.log('Bulk import:', value);
-        // await bulkImportFn({ url: value.url, searchQuery: value.searchQuery });
-        toast.success('Bulk import started!');
+        const urls = await mapUrls({ data: value });
+        setUrls(urls);
+        toast.success(`Found ${urls.length} urls!`);
       });
     },
   });
@@ -32,6 +38,7 @@ export function BulkImportForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           form.handleSubmit();
         }}
       >
