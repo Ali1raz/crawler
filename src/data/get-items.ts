@@ -6,13 +6,14 @@ import z from 'zod';
 
 const getItemsFiltersSchema = z.object({
   search: z.string().default(''),
-  status: z.union([z.literal('all'), z.nativeEnum(ItemStatus)]).default('all'),
+  status: z.union([z.literal('all'), z.enum(ItemStatus)]).default('all'),
 });
 
 export const getItems = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .inputValidator(getItemsFiltersSchema)
   .handler(async ({ context, data }) => {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     const search = data.search.trim();
 
     const items = await prisma.savedItem.findMany({
