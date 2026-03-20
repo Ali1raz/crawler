@@ -51,15 +51,16 @@ function RouteComponent() {
     },
     onError: (error) => toast.error(error.message),
     onFinish: async (_, completion) => {
-      await saveSummaryTags({
-        data: {
-          id: item.id,
-          summary: completion,
-        },
-      });
-
-      toast.success('Summary generated and tags extracted!');
-      router.invalidate();
+      try {
+        await saveSummaryTags({
+          data: { id: item.id, summary: completion },
+        });
+        toast.success('Summary and tags generated successfully!');
+        await router.invalidate();
+      } catch {
+        toast.error('Summary generated but failed to save. Please try again.');
+        // don't invalidate — loader data would be stale/mismatched with displayed completion
+      }
     },
   });
   const summaryText = completion || item.summary;
@@ -70,7 +71,7 @@ function RouteComponent() {
       return;
     }
 
-    complete(item.content);
+    complete(''); // server uses item.content from DB
   }
 
   return (

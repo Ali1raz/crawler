@@ -23,6 +23,13 @@ export const Route = createFileRoute('/api/ai/summary')({
         if (!item) {
           return new Response('Item not found', { status: 404 });
         }
+
+        // ✅ explicit content check before interpolation
+        if (!item.content)
+          return new Response('Item has no content to summarize', {
+            status: 400,
+          });
+
         try {
           const result = streamText({
             model: model,
