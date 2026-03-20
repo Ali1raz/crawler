@@ -1,7 +1,14 @@
 import { MessageResponse } from '#/components/ai-elements/message';
 import { CopyToClipboardButton } from '#/components/copy-to-clipboard-button';
 import { Button, buttonVariants } from '#/components/ui/button';
-import { Card, CardContent } from '#/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '#/components/ui/card';
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,9 +23,15 @@ import {
   Calendar,
   ChevronDown,
   Clock,
+  Loader2,
+  Sparkles,
   User,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useCompletion } from '@ai-sdk/react';
+import { toast } from 'sonner';
+import { saveSummaryTags } from '#/data/generate-summary';
+import { Badge } from '#/components/ui/badge';
 
 export const Route = createFileRoute('/dashboard/items/$itemId')({
   component: RouteComponent,
@@ -28,9 +41,41 @@ export const Route = createFileRoute('/dashboard/items/$itemId')({
 function RouteComponent() {
   const item = Route.useLoaderData();
   const [contentOpen, setContentOpen] = useState(false);
+  const [tags, setTags] = useState(item.tags ?? []);
+
+  const { complete, completion, isLoading } = useCompletion({
+    api: '/api/ai/summary',
+    streamProtocol: 'text',
+    body: {
+      itemId: item.id,
+    },
+    onError: (error) => toast.error(error.message),
+    onFinish: async (_, completion) => {
+      const savedItem = await saveSummaryTags({
+        data: {
+          id: item.id,
+          summary: completion,
+        },
+      });
+
+      setTags(savedItem.tags ?? []);
+
+      toast.success('Summary generated and tags extracted!');
+    },
+  });
+  const summaryText = completion || item.summary;
+
+  function handleGenerateSummary() {
+    if (!item.content) {
+      toast.error('No content available to summarize');
+      return;
+    }
+
+    complete(item.content);
+  }
 
   return (
-    <div className="space-y-6 px-6">
+    <div className="space-y-6 md:px-6">
       <Link
         to="/dashboard/items"
         className={buttonVariants({ variant: 'outline' })}
@@ -39,20 +84,20 @@ function RouteComponent() {
           status: prev.status,
         })}
       >
-        <ArrowLeft className="inline-block" />
+        <ArrowLeft className="size-4" />
         Back to items
       </Link>
-      <div className="relative rounded-lg aspect-video w-full overflow-hidden bg-muted">
+      <div className="relative rounded-lg w-full overflow-hidden bg-muted">
         {item.ogImage ? (
           <img
             src={item.ogImage}
             alt={item.title || 'Saved Item Thumbnail'}
-            className="w-full h-full hover:scale-105 transition-transform object-cover"
+            className="w-full max-h-80 hover:scale-105 transition-transform object-cover"
           />
         ) : null}
       </div>
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex md:items-center flex-col md:flex-row justify-between md:gap-4 gap-2">
           <h1 className="text-2xl font-bold text-ellipsis">
             {item.title || item.url}
           </h1>
@@ -93,6 +138,60 @@ function RouteComponent() {
             )}
           </span>
         </div>
+
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <Badge key={tag}>{tag}</Badge>
+            ))}
+          </div>
+        )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Summary</CardTitle>
+            <CardDescription>
+              {item.summary
+                ? 'Saved AI summary'
+                : 'Generate a concise summary from the saved content.'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {summaryText ? (
+              <MessageResponse>{summaryText}</MessageResponse>
+            ) : (
+              <p className="text-muted-foreground italic">
+                {item.content
+                  ? 'No summary yet. Generate one with AI.'
+                  : 'No content available to summarize.'}
+              </p>
+            )}
+          </CardContent>
+          {item.content && !summaryText && (
+            <CardFooter>
+              <Button
+                onClick={handleGenerateSummary}
+                disabled={isLoading}
+                size="sm"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2
+                      data-icon="inline-start"
+                      className="animate-spin"
+                    />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles data-icon="inline-start" />
+                    Generate summary
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          )}
+        </Card>
 
         {item.content && (
           <Collapsible open={contentOpen} onOpenChange={setContentOpen}>
