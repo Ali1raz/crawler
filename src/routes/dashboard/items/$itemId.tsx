@@ -71,7 +71,7 @@ function RouteComponent() {
       return;
     }
 
-    complete(''); // server uses item.content from DB
+    complete('Generate summary'); // server uses item.content from DB
   }
 
   return (
