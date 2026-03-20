@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '#/components/ui/card';
@@ -16,7 +15,7 @@ import {
 } from '#/components/ui/collapsible';
 import { getItemById } from '#/data/get-items';
 import { cn } from '#/lib/utils';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -41,26 +40,26 @@ export const Route = createFileRoute('/dashboard/items/$itemId')({
 function RouteComponent() {
   const item = Route.useLoaderData();
   const [contentOpen, setContentOpen] = useState(false);
-  const [tags, setTags] = useState(item.tags ?? []);
+  const router = useRouter();
 
   const { complete, completion, isLoading } = useCompletion({
     api: '/api/ai/summary',
     streamProtocol: 'text',
+    initialCompletion: item.summary || undefined,
     body: {
       itemId: item.id,
     },
     onError: (error) => toast.error(error.message),
     onFinish: async (_, completion) => {
-      const savedItem = await saveSummaryTags({
+      await saveSummaryTags({
         data: {
           id: item.id,
           summary: completion,
         },
       });
 
-      setTags(savedItem.tags ?? []);
-
       toast.success('Summary generated and tags extracted!');
+      router.invalidate();
     },
   });
   const summaryText = completion || item.summary;
@@ -139,9 +138,9 @@ function RouteComponent() {
           </span>
         </div>
 
-        {tags.length > 0 && (
+        {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
+            {item.tags.map((tag) => (
               <Badge key={tag}>{tag}</Badge>
             ))}
           </div>
@@ -149,7 +148,28 @@ function RouteComponent() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Summary</CardTitle>
+            <CardTitle className="flex items-center justify-between w-full">
+              <h1>Summary</h1>
+              {item.content && !summaryText && (
+                <Button
+                  onClick={handleGenerateSummary}
+                  disabled={isLoading}
+                  size="sm"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles />
+                      Generate summary
+                    </>
+                  )}
+                </Button>
+              )}
+            </CardTitle>
             <CardDescription>
               {item.summary
                 ? 'Saved AI summary'
@@ -167,30 +187,6 @@ function RouteComponent() {
               </p>
             )}
           </CardContent>
-          {item.content && !summaryText && (
-            <CardFooter>
-              <Button
-                onClick={handleGenerateSummary}
-                disabled={isLoading}
-                size="sm"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2
-                      data-icon="inline-start"
-                      className="animate-spin"
-                    />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles data-icon="inline-start" />
-                    Generate summary
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          )}
         </Card>
 
         {item.content && (
