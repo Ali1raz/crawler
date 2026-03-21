@@ -139,4 +139,8 @@ code {
   html {
     @apply font-sans;
   }
+
+  label {
+    @apply cursor-pointer select-none;
+  }
 }
