@@ -15,26 +15,39 @@ interface NavItems {
   activeOptions?: { exact: boolean };
 }
 
-const items: NavItems[] = linkOptions([
+const itemLinks = linkOptions([
   {
-    title: 'Import',
-    icon: Import,
     to: '/dashboard/import',
     activeOptions: { exact: false },
   },
   {
-    title: 'Items',
-    icon: Bookmark,
     to: '/dashboard/items',
+    search: { search: undefined, status: undefined },
     activeOptions: { exact: false },
   },
   {
-    title: 'Discover',
-    icon: Compass,
     to: '/dashboard/discover',
     activeOptions: { exact: false },
   },
 ]);
+
+const items: NavItems[] = [
+  {
+    title: 'Import',
+    icon: Import,
+    ...itemLinks[0],
+  },
+  {
+    title: 'Items',
+    icon: Bookmark,
+    ...itemLinks[1],
+  },
+  {
+    title: 'Discover',
+    icon: Compass,
+    ...itemLinks[2],
+  },
+];
 
 export function NavMain() {
   return (
