@@ -5,7 +5,9 @@ import { getSession } from '#/data/requireSession';
 export const Route = createFileRoute('/_auth/login')({
   validateSearch: (search) => ({
     returnTo:
-      typeof search.returnTo === 'string' && search.returnTo.startsWith('/')
+      typeof search.returnTo === 'string' &&
+      search.returnTo.startsWith('/') &&
+      !search.returnTo.startsWith('//')
         ? search.returnTo
         : undefined,
   }),
