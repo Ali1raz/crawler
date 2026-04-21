@@ -16,6 +16,7 @@ import {
 import { ItemStatus } from '#/generated/prisma/enums';
 import { parseAsString, parseAsStringEnum, useQueryStates } from 'nuqs';
 import { Suspense, use } from 'react';
+import { Clock, User } from 'lucide-react';
 
 const statusOptions = ['all', ...Object.values(ItemStatus)] as const;
 type StatusOption = 'all' | ItemStatus;
@@ -150,13 +151,19 @@ function ItemsList({
           key={item.id}
           className="group overflow-hidden transition-all hover:shadow-lg pt-0"
         >
-          <Link to="/dashboard" className="block">
+          <Link
+            to="/dashboard/items/$itemId"
+            params={{
+              itemId: item.id,
+            }}
+            className="block"
+          >
             <div className="aspect-video w-full overflow-hidden bg-muted">
               {item.ogImage ? (
                 <img
                   src={item.ogImage}
                   alt={item.title || 'Saved Item Thumbnail'}
-                  className="w-full h-full group-hover:scale-105 transition-transform object-cover"
+                  className="w-full h-full hover:scale-105 transition-transform object-cover"
                 />
               ) : null}
             </div>
@@ -171,13 +178,24 @@ function ItemsList({
               <CopyToClipboardButton link={item.url} />
             </div>
             <CardTitle className="group-hover:text-primary text-xl leading-normal font-semibold hover:underline line-clamp-2 transition-colors underline-offset-4">
-              {item.title}
+              <Link
+                to="/dashboard/items/$itemId"
+                params={{
+                  itemId: item.id,
+                }}
+              >
+                {item.title}
+              </Link>
             </CardTitle>
           </CardHeader>
           <CardContent className="flex items-center mt-auto justify-between">
-            <p>{item.author || 'Unknown Author'}</p>
+            <p className="flex items-center gap-2">
+              <User className="size-4" />
+              {item.author || 'Unknown Author'}
+            </p>
             <span className="text-sm text-muted-foreground">
-              {new Date(item.createdAt).toLocaleDateString(undefined, {
+              <Clock className="size-4" />
+              {new Date(item.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',

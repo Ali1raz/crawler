@@ -37,3 +37,11 @@ export const extractSchema = z.object({
 });
 
 export type ExtractSchemaType = z.infer<typeof extractSchema>;
+
+// =================
+
+export const discoverSchema = z.object({
+  query: z.string().min(3),
+});
+
+export type DiscoverSchemaType = z.infer<typeof discoverSchema>;

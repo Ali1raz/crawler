@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
+@source "../node_modules/streamdown/dist/*.js";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -137,5 +138,9 @@ code {
   }
   html {
     @apply font-sans;
+  }
+
+  label {
+    @apply cursor-pointer select-none;
   }
 }

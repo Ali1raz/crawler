@@ -17,6 +17,10 @@ import { Checkbox } from '#/components/ui/checkbox';
 import { toast } from 'sonner';
 import { bulkScrape } from '#/actions/scrape-single';
 import { Button } from '#/components/ui/button';
+import { parseAsStringEnum, useQueryState } from 'nuqs';
+
+const tabOptions = ['single', 'bulk'];
+type ImportTab = (typeof tabOptions)[number];
 
 export const Route = createFileRoute('/dashboard/import/')({
   component: RouteComponent,
@@ -24,6 +28,10 @@ export const Route = createFileRoute('/dashboard/import/')({
 
 function RouteComponent() {
   const [bulkImportPending, setBulkImportPending] = useTransition();
+  const [activeTab, setActiveTab] = useQueryState(
+    'tab',
+    parseAsStringEnum(tabOptions).withDefault('single'),
+  );
 
   const [urls, setUrls] = useState<Array<SearchResultWeb>>([]);
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
@@ -71,7 +79,12 @@ function RouteComponent() {
         </p>
       </div>
       <div className="w-full max-w-4xl mx-auto">
-        <Tabs defaultValue="single">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            setActiveTab(value === 'single' ? null : (value as ImportTab))
+          }
+        >
           <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="single">
               <div className="flex items-center gap-2">

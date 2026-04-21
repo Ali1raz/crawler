@@ -2,6 +2,7 @@ import { prisma } from '#/db';
 import { authMiddleware } from '#/lib/middleware/auth';
 import { ItemStatus } from '#/generated/prisma/enums';
 import { createServerFn } from '@tanstack/react-start';
+import { notFound } from '@tanstack/react-router';
 import z from 'zod';
 
 const getItemsFiltersSchema = z.object({
@@ -46,4 +47,22 @@ export const getItems = createServerFn({ method: 'GET' })
     });
 
     return items;
+  });
+
+export const getItemById = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .inputValidator(z.object({ itemId: z.string() }))
+  .handler(async ({ context, data }) => {
+    const item = await prisma.savedItem.findFirst({
+      where: {
+        id: data.itemId,
+        userId: context.session.user.id,
+      },
+    });
+
+    if (!item) {
+      throw notFound();
+    }
+
+    return item;
   });

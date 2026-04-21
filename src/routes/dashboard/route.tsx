@@ -6,14 +6,16 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '#/components/ui/sidebar';
-import { requireSession } from '#/data/requireSession';
+import { requireSessionWithReturnTo } from '#/data/requireSession';
 import { Link } from '@tanstack/react-router';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard')({
   component: RouteComponent,
-  loader: async () => {
-    const session = await requireSession();
+  loader: async ({ location }) => {
+    const session = await requireSessionWithReturnTo({
+      data: { returnTo: location.href },
+    });
     return {
       user: session.user,
     };
