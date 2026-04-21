@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {  useRouter } from '@tanstack/react-router';
+
 import { useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
@@ -18,8 +19,7 @@ export const profleSchema = z.object({
 
 export type ProfleSchemaType = z.infer<typeof profleSchema>;
 
-export function Profileform({user}: {user: User}) {
-    
+export function Profileform({ user }: { user: User }) {
   const router = useRouter();
   const [returnTo] = useQueryState('returnTo', parseAsString);
   const [isPending, startTransition] = useTransition();
@@ -27,28 +27,31 @@ export function Profileform({user}: {user: User}) {
   const form = useForm<ProfleSchemaType>({
     resolver: zodResolver(profleSchema),
     defaultValues: {
-      name: user.name || "",
+      name: user.name || '',
     },
   });
 
   async function onSubmit(values: ProfleSchemaType) {
     startTransition(async () => {
-        await authClient.updateUser({
-            name: values.name,
-            fetchOptions: {
-                onError: ({error}) => {
-                    toast.error(error.message)
-                },onSuccess: () => {
-                  router.navigate({ href: returnTo && returnTo.startsWith('/') ? returnTo : '/' })
-                    toast.success("Profile updated successfully!")
-                }
-            }
-        })
+      await authClient.updateUser({
+        name: values.name,
+        fetchOptions: {
+          onError: ({ error }) => {
+            toast.error(error.message);
+          },
+          onSuccess: () => {
+              to: returnTo && returnTo.startsWith('/') ? returnTo : '/',
+              href: returnTo && returnTo.startsWith('/') ? returnTo : '/',
+            });
+            toast.success('Profile updated successfully!');
+          },
+        },
+      });
     });
   }
   return (
     <div className="grid gap-4">
-      <form id="login-form" onSubmit={form.handleSubmit(onSubmit)}>
+      <form id="profile-form" onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup className="flex flex-col gap-4">
           <Controller
             name="name"
@@ -72,8 +75,8 @@ export function Profileform({user}: {user: User}) {
           />
         </FieldGroup>
       </form>
-      <Field className="mt-4 space-y-2">
-        <Button disabled={isPending} type="submit" form="login-form">
+      <Field className="sm:mt-4 mt-2 grid sm:grid-cols-2">
+        <Button disabled={isPending} type="submit" form="profile-form">
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
@@ -82,6 +85,12 @@ export function Profileform({user}: {user: User}) {
           ) : (
             <>Update Profile</>
           )}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => router.navigate({ to: returnTo || '/' })}
+        >
+          Back
         </Button>
       </Field>
     </div>
