@@ -1,4 +1,5 @@
-import { auth, authMiddleware } from '#/lib/auth';
+import { auth } from '#/lib/auth';
+import { authMiddleware } from '#/lib/middleware/auth';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequestHeaders } from '@tanstack/react-start/server';
 import z from 'zod';
@@ -14,6 +15,7 @@ export const listAllSessions = createServerFn({ method: 'GET' })
     });
 
 export const revokeSingleSession = createServerFn({ method: 'POST' })
+    .middleware([authMiddleware])
     .inputValidator(
         z.object({
             token: z.string().min(1),
