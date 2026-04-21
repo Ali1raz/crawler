@@ -1,17 +1,17 @@
-import { auth } from '#/lib/auth';
+import { auth, authMiddleware } from '#/lib/auth';
 import { createServerFn } from '@tanstack/react-start';
 import { getRequestHeaders } from '@tanstack/react-start/server';
 import z from 'zod';
 
-export const listAllSessions = createServerFn({ method: 'GET' }).handler(
-    async () => {
+export const listAllSessions = createServerFn({ method: 'GET' })
+    .middleware([authMiddleware])
+    .handler(async () => {
         const sessions = await auth.api.listSessions({
             headers: getRequestHeaders(),
         });
 
         return sessions;
-    },
-);
+    });
 
 export const revokeSingleSession = createServerFn({ method: 'POST' })
     .inputValidator(
