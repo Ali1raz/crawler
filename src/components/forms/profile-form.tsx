@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {  useRouter } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 
 import { useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -40,7 +40,7 @@ export function Profileform({ user }: { user: User }) {
             toast.error(error.message);
           },
           onSuccess: () => {
-              to: returnTo && returnTo.startsWith('/') ? returnTo : '/',
+            router.navigate({
               href: returnTo && returnTo.startsWith('/') ? returnTo : '/',
             });
             toast.success('Profile updated successfully!');
