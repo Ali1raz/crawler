@@ -40,7 +40,7 @@ export function Profileform({ user }: { user: User }) {
             toast.error(error.message);
           },
           onSuccess: () => {
-            router.navigate({
+              to: returnTo && returnTo.startsWith('/') ? returnTo : '/',
               href: returnTo && returnTo.startsWith('/') ? returnTo : '/',
             });
             toast.success('Profile updated successfully!');
