@@ -17,12 +17,14 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useSignOut } from '#/hooks/use-signout';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 import { type User } from 'better-auth';
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
+  const location = useLocation();
   const handleSignOut = useSignOut();
+  const returnTo = location.href;
 
   const imageUrl =
     user.image ||
@@ -73,7 +75,7 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link to="/profile">
+                <Link to="/profile" search={{ returnTo }}>
                   <UserIcon />
                   Profile
                 </Link>

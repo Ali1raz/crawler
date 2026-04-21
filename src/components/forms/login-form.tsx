@@ -11,10 +11,13 @@ import { loginSchema, type LoginSchemaType } from './schema';
 import { SignInWithGithub } from './signin-with-github';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { useTransition } from 'react';
+import { parseAsString, useQueryState } from 'nuqs';
 
 export function LoginForm() {
   const router = useRouter();
+  const [returnTo] = useQueryState('returnTo', parseAsString);
   const [isEmailPending, startEmailTransition] = useTransition();
+  const redirectTo = returnTo && returnTo.startsWith('/') ? returnTo : '/dashboard';
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
@@ -27,7 +30,7 @@ export function LoginForm() {
         {
           email: values.email,
           password: values.password,
-          callbackURL: '/dashboard',
+          callbackURL: redirectTo,
         },
         {
           onError: ({ error }) => {
@@ -35,7 +38,7 @@ export function LoginForm() {
           },
           onSuccess: () => {
             toast.success('Login success');
-            router.navigate({ to: '/dashboard' });
+            router.navigate({ href: redirectTo });
           },
         },
       );
@@ -106,6 +109,7 @@ export function LoginForm() {
         Don&apos;t have an account?{' '}
         <Link
           to="/register"
+          search={{ returnTo: returnTo ?? undefined }}
           className="text-primary hover:underline underline-offset-4"
         >
           Register

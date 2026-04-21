@@ -3,11 +3,14 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const session = await getSession();
 
     if (!session) {
-      throw redirect({ to: '/login' });
+      throw redirect({
+        to: '/login',
+        search: { returnTo: location.href },
+      });
     }
 
     throw redirect({ to: '/dashboard/import' });
