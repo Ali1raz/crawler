@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_auth/login')({
     const session = await getSession();
 
     if (session) {
-      throw redirect({ href: search.returnTo ?? '/' });
+      throw redirect({ to: search.returnTo ?? '/' });
     }
   },
 });
