@@ -20,7 +20,7 @@
     "db:studio": "dotenv -e .env.local -- prisma studio",
     "db:seed": "dotenv -e .env.local -- prisma db seed",
     "postinstall": "pnpm db:generate",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy && vite build"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.118",
