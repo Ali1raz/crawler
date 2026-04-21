@@ -3,13 +3,19 @@ import { RegisterForm } from '#/components/forms/register';
 import { getSession } from '#/data/requireSession';
 
 export const Route = createFileRoute('/_auth/register')({
+  validateSearch: (search) => ({
+    returnTo:
+      typeof search.returnTo === 'string' && search.returnTo.startsWith('/')
+        ? search.returnTo
+        : undefined,
+  }),
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     // If the user is already authenticated, redirect to the /
     const session = await getSession();
 
     if (session) {
-      throw redirect({ to: '/' });
+      throw redirect({ href: search.returnTo ?? '/' });
     }
   },
 });

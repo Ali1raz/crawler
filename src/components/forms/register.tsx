@@ -2,7 +2,7 @@ import { Button } from '#/components/ui/button';
 import { Input } from '#/components/ui/input';
 import { authClient } from '#/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -10,9 +10,13 @@ import { toast } from 'sonner';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { registerSchema, type RegisterSchemaType } from './schema';
 import { SignInWithGithub } from './signin-with-github';
+import { parseAsString, useQueryState } from 'nuqs';
 
 export function RegisterForm() {
+  const router = useRouter();
+  const [returnTo] = useQueryState('returnTo', parseAsString);
   const [isEmailPending, startEmailTransition] = useTransition();
+  const redirectTo = returnTo && returnTo.startsWith('/') ? returnTo : '/dashboard';
 
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
@@ -26,7 +30,7 @@ export function RegisterForm() {
           name: values.name,
           email: values.email,
           password: values.password,
-          callbackURL: '/dashboard',
+          callbackURL: redirectTo,
         },
         {
           onError: ({ error }) => {
@@ -34,6 +38,7 @@ export function RegisterForm() {
           },
           onSuccess: () => {
             toast.success('Account created!');
+            router.navigate({ href: redirectTo });
           },
         },
       );
@@ -121,7 +126,8 @@ export function RegisterForm() {
       <div className="text-center text-sm">
         Already have an account?{' '}
         <Link
-          to="/register"
+          to="/login"
+          search={{ returnTo: returnTo ?? undefined }}
           className="text-primary hover:underline underline-offset-4"
         >
           Login
