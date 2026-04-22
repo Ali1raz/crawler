@@ -27,6 +27,14 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       enabled: true,
+      beforeDelete: async (user) => {
+        await prisma.user.delete({
+          where: {
+            id: user.id
+          }
+        });
+        console.log(`Deleted user ${user.id}`);
+      },
     },
   },
   plugins: [tanstackStartCookies()],
