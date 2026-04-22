@@ -30,13 +30,12 @@ export function Header() {
           />
         </Link>
         <div className="ml-auto hidden items-center gap-2 md:flex">
-          <ThemeToggle />
-
           {!isPending && session ? (
             <>
               <Link to="/dashboard" className={buttonVariants({ size: 'sm' })}>
                 Dashboard
               </Link>
+              <ThemeToggle />
               <Button
                 onClick={handleSignOut}
                 className="cursor-pointer"
@@ -49,11 +48,16 @@ export function Header() {
             <>
               <Link
                 to="/login"
+                search={{ returnTo: undefined }}
                 className={buttonVariants({ size: 'sm', variant: 'outline' })}
               >
                 Login
               </Link>
-              <Link to="/register" className={buttonVariants({ size: 'sm' })}>
+              <Link
+                to="/register"
+                search={{ returnTo: undefined }}
+                className={buttonVariants({ size: 'sm' })}
+              >
                 Get Started
               </Link>
             </>

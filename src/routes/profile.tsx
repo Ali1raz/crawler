@@ -1,4 +1,5 @@
 import { Profileform } from '#/components/forms/profile-form';
+import { Header } from '#/components/general/header';
 import { Badge } from '#/components/ui/badge';
 import { Button } from '#/components/ui/button';
 import {
@@ -144,24 +145,115 @@ function RouteComponent() {
   };
 
   return (
-    <div className="max-w-6xl flex flex-col gap-4 items-center h-screen justify-center mx-auto sm:px-6 px-4">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>
-            <h1>Manage your profile</h1>
-          </CardTitle>
-          <CardDescription>
-            Update your account details or manage account access.
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={isAccountPending || isDeleteDialogOpen}
-              onClick={handleSignOut}
-            >
-              {isAccountPending ? 'Processing...' : 'Log out'}
-            </Button>
+    <main className="w-full">
+      <Header />
+      <div className="max-w-6xl flex flex-col gap-4 items-center min-h-screen sm:justify-center mt-8 mx-auto sm:px-6 px-4">
+        <Card className="w-full">
+          <CardHeader className="flex flex-col">
+            <CardTitle>
+              <h1>Manage your profile</h1>
+            </CardTitle>
+            <CardDescription>
+              Update your account details or manage account access.
+            </CardDescription>
+            <CardAction className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={isAccountPending || isDeleteDialogOpen}
+                onClick={handleSignOut}
+              >
+                {isAccountPending ? 'Processing...' : 'Log out'}
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <Profileform user={user} />
+          </CardContent>
+        </Card>
+
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Manage your sessions across devices</CardTitle>
+            <CardDescription>
+              Review active sessions and revoke access for a specific device.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {sortedSessions.map((session) => {
+              const token = session.token;
+              const isCurrentSession = token === currentSessionToken;
+              const isRevoking = isPending && pendingToken === token;
+
+              return (
+                <Card key={session.id}>
+                  <CardHeader>
+                    <CardTitle>{getDeviceLabel(session.userAgent)}</CardTitle>
+                    <CardDescription>
+                      Started {getRelativeDate(session.createdAt)}
+                    </CardDescription>
+                    <CardAction className="sm:flex hidden gap-2">
+                      {isCurrentSession && (
+                        <Badge className="w-fit">Current device</Badge>
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className={cn(
+                          isRevoking &&
+                            isCurrentSession &&
+                            'cursor-not-allowed',
+                        )}
+                        disabled={isCurrentSession || !token || isRevoking}
+                        onClick={() => token && handleRevoke(token)}
+                      >
+                        {isRevoking ? 'Revoking...' : 'Revoke'}
+                      </Button>
+                    </CardAction>
+                    <div className="sm:hidden flex gap-2">
+                      {isCurrentSession && (
+                        <Badge className="w-fit">Current device</Badge>
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className={cn(
+                          isRevoking &&
+                            isCurrentSession &&
+                            'cursor-not-allowed',
+                        )}
+                        disabled={isCurrentSession || !token || isRevoking}
+                        onClick={() => token && handleRevoke(token)}
+                      >
+                        {isRevoking ? 'Revoking...' : 'Revoke'}
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+                    <div>Signed in: {getFullDate(session.createdAt)}</div>
+                    <div>Expires: {getFullDate(session.expiresAt)}</div>
+                    <div>IP Address: {session.ipAddress || 'Unavailable'}</div>
+                    <div className="break-all">
+                      User agent: {session.userAgent || 'Unavailable'}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        <Card className="w-full bg-destructive/10">
+          <CardHeader>
+            <CardTitle>Danger zone</CardTitle>
+            <CardDescription>
+              Permanently delete your account and all associated data.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <Dialog
               open={isDeleteDialogOpen}
               onOpenChange={(open) => {
@@ -181,7 +273,7 @@ function RouteComponent() {
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>
+                <DialogHeader className="text-left">
                   <DialogTitle>Delete account</DialogTitle>
                   <DialogDescription>
                     Enter your password to permanently delete your account. This
@@ -204,12 +296,7 @@ function RouteComponent() {
                   </Field>
                 </FieldGroup>
 
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline" disabled={isAccountPending}>
-                      Cancel
-                    </Button>
-                  </DialogClose>
+                <DialogFooter className="flex gap-2 flex-row justify-end">
                   <Button
                     variant="destructive"
                     disabled={isAccountPending || !deletePassword.trim()}
@@ -217,69 +304,18 @@ function RouteComponent() {
                   >
                     {isAccountPending ? 'Deleting...' : 'Delete permanently'}
                   </Button>
+                  <DialogClose asChild>
+                    <Button variant="outline" disabled={isAccountPending}>
+                      Cancel
+                    </Button>
+                  </DialogClose>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <Profileform user={user} />
-        </CardContent>
-      </Card>
-
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Manage your sessions across devices</CardTitle>
-          <CardDescription>
-            Review active sessions and revoke access for a specific device.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {sortedSessions.map((session) => {
-            const token = session.token;
-            const isCurrentSession = token === currentSessionToken;
-            const isRevoking = isPending && pendingToken === token;
-
-            return (
-              <Card key={session.id}>
-                <CardHeader>
-                  <CardTitle>{getDeviceLabel(session.userAgent)}</CardTitle>
-                  <CardDescription>
-                    Started {getRelativeDate(session.createdAt)}
-                  </CardDescription>
-                  <CardAction className="flex justify-end gap-2">
-                    {isCurrentSession && (
-                      <Badge className="w-fit">Current device</Badge>
-                    )}
-
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className={cn(
-                        isRevoking && isCurrentSession && 'cursor-not-allowed',
-                      )}
-                      disabled={isCurrentSession || !token || isRevoking}
-                      onClick={() => token && handleRevoke(token)}
-                    >
-                      {isRevoking ? 'Revoking...' : 'Revoke'}
-                    </Button>
-                  </CardAction>
-                </CardHeader>
-
-                <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <div>Signed in: {getFullDate(session.createdAt)}</div>
-                  <div>Expires: {getFullDate(session.expiresAt)}</div>
-                  <div>IP Address: {session.ipAddress || 'Unavailable'}</div>
-                  <div className="break-all">
-                    User agent: {session.userAgent || 'Unavailable'}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }
 

@@ -57,7 +57,14 @@ export function NavMain() {
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <Link to={item.to} activeOptions={item.activeOptions}>
+                <Link
+                  to={item.to}
+                  activeOptions={item.activeOptions}
+                  activeProps={{
+                    className:
+                      'bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/50 transition-colors duration-100',
+                  }}
+                >
                   <item.icon className="mr-1" />
                   {item.title}
                 </Link>

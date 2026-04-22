@@ -85,7 +85,7 @@ model SavedItem {
   ogImage     String?
   status      ItemStatus @default(PENDING)
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   createdAt DateTime @default(now())

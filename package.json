@@ -19,6 +19,7 @@
     "db:migrate": "dotenv -e .env.local -- prisma migrate dev",
     "db:studio": "dotenv -e .env.local -- prisma studio",
     "db:seed": "dotenv -e .env.local -- prisma db seed",
+    "db:sync": "pnpm db:push && pnpm db:generate",
     "postinstall": "pnpm db:generate",
     "vercel-build": "prisma generate && prisma migrate deploy && vite build"
   },
