@@ -32,14 +32,15 @@ export function Header() {
         <div className="ml-auto hidden items-center gap-2 md:flex">
           {!isPending && session ? (
             <>
+              <ThemeToggle />
               <Link to="/dashboard" className={buttonVariants({ size: 'sm' })}>
                 Dashboard
               </Link>
-              <ThemeToggle />
               <Button
                 onClick={handleSignOut}
                 className="cursor-pointer"
                 size="sm"
+                variant="outline"
               >
                 Sign Out
               </Button>

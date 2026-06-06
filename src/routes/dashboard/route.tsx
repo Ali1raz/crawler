@@ -50,7 +50,7 @@ function RouteComponent() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="flex flex-1 max-w-5xl flex-col gap-4 p-4">
+        <main className="flex flex-1 max-w-7xl flex-col gap-4 p-4">
           <Outlet />
         </main>
       </SidebarInset>

@@ -1,4 +1,5 @@
 import { Header } from '#/components/general/header';
+import { Hero } from '#/components/general/hero';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
@@ -9,7 +10,7 @@ function App() {
   return (
     <div>
       <Header />
-      <main>ali</main>
+      <Hero />
     </div>
   );
 }

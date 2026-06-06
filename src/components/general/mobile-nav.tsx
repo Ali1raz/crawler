@@ -1,16 +1,16 @@
-import { cn } from '@/lib/utils'
-import React from 'react'
-import { XIcon, MenuIcon } from 'lucide-react'
-import { Button, buttonVariants } from '../ui/button'
-import { Portal, PortalBackdrop } from '../ui/portal'
-import { authClient } from '#/lib/auth-client'
-import { useSignOut } from '#/hooks/use-signout'
-import { Link } from '@tanstack/react-router'
+import { cn } from '@/lib/utils';
+import React from 'react';
+import { XIcon, MenuIcon } from 'lucide-react';
+import { Button, buttonVariants } from '../ui/button';
+import { Portal, PortalBackdrop } from '../ui/portal';
+import { authClient } from '#/lib/auth-client';
+import { useSignOut } from '#/hooks/use-signout';
+import { Link } from '@tanstack/react-router';
 
 export function MobileNav() {
-  const [open, setOpen] = React.useState(false)
-  const { isPending, data: session } = authClient.useSession()
-  const handleSignOut = useSignOut()
+  const [open, setOpen] = React.useState(false);
+  const { isPending, data: session } = authClient.useSession();
+  const handleSignOut = useSignOut();
 
   return (
     <div className="md:hidden">
@@ -53,8 +53,8 @@ export function MobileNav() {
                     className="w-full"
                     variant="outline"
                     onClick={() => {
-                      handleSignOut()
-                      setOpen(false)
+                      handleSignOut();
+                      setOpen(false);
                     }}
                   >
                     Sign Out
@@ -68,6 +68,7 @@ export function MobileNav() {
                       variant: 'outline',
                       className: 'w-full',
                     })}
+                    search={{ returnTo: undefined }}
                     onClick={() => setOpen(false)}
                   >
                     Login
@@ -76,6 +77,7 @@ export function MobileNav() {
                     to="/register"
                     className={buttonVariants({ className: 'w-full' })}
                     onClick={() => setOpen(false)}
+                    search={{ returnTo: undefined }}
                   >
                     Get Started
                   </Link>
@@ -86,5 +88,5 @@ export function MobileNav() {
         </Portal>
       )}
     </div>
-  )
+  );
 }
